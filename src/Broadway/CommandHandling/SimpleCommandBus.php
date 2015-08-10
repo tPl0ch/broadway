@@ -10,12 +10,14 @@
  */
 
 namespace Broadway\CommandHandling;
+use Broadway\CommandHandling\Exception\CommandHandlingException;
 
 /**
  * Simple synchronous dispatching of commands.
  */
 class SimpleCommandBus implements CommandBusInterface
 {
+    /** @var CommandHandlerInterface[] */
     private $commandHandlers = array();
     private $queue           = array();
     private $isDispatching   = false;
@@ -47,8 +49,11 @@ class SimpleCommandBus implements CommandBusInterface
 
                 $this->isDispatching = false;
             } catch (\Exception $e) {
+                $incompleteCommands = $this->queue;
+                $this->queue = array();
                 $this->isDispatching = false;
-                throw $e;
+
+                throw new CommandHandlingException($e, $incompleteCommands);
             }
         }
     }

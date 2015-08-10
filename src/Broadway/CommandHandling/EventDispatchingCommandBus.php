@@ -11,6 +11,7 @@
 
 namespace Broadway\CommandHandling;
 
+use Broadway\CommandHandling\Exception\CommandHandlingException;
 use Broadway\EventDispatcher\EventDispatcherInterface;
 use Exception;
 
@@ -39,16 +40,24 @@ class EventDispatchingCommandBus implements CommandBusInterface
      */
     public function dispatch($command)
     {
+        $exception = null;
+        $eventData = array('command' => $command);
+
         try {
             $this->commandBus->dispatch($command);
-            $this->dispatcher->dispatch(self::EVENT_COMMAND_SUCCESS, array('command' => $command));
-        } catch (Exception $e) {
-            $this->dispatcher->dispatch(
-                self::EVENT_COMMAND_FAILURE,
-                array('command' => $command, 'exception' => $e)
-            );
+            $this->dispatcher->dispatch(self::EVENT_COMMAND_SUCCESS, $eventData);
+        } catch (CommandHandlingException $handlingException) {
+            $eventData['exception'] = $exception = $handlingException->getOriginalException();
+            $eventData['incomplete_commands'] = $handlingException->getIncompleteCommandStack();
+        } catch (\Exception $e) {
+            $eventData['exception'] = $e;
+            $exception = $e;
+        }
 
-            throw $e;
+        if (!is_null($exception)) {
+            $this->dispatcher->dispatch(self::EVENT_COMMAND_FAILURE, $eventData);
+
+            throw $exception;
         }
     }
 

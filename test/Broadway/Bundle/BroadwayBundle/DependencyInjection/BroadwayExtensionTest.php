@@ -12,7 +12,6 @@
 namespace Broadway\Bundle\BroadwayBundle\DependencyInjection;
 
 use IC\Bundle\Base\TestBundle\Test\DependencyInjection\ExtensionTestCase;
-use Symfony\Component\DependencyInjection\Reference;
 
 class BroadwayExtensionTest extends ExtensionTestCase
 {
@@ -144,7 +143,7 @@ class BroadwayExtensionTest extends ExtensionTestCase
         $configuration = array('command_handling' => array('logger' => false));
 
         $this->load($this->extension, $configuration);
-        $this->assertDICAliasClass('broadway.command_handling.command_bus', 'Broadway\CommandHandling\SimpleCommandBus');
+        $this->assertDICAliasClass('broadway.command_handling.command_bus', 'Broadway\CommandHandling\HandlingExceptionAwareCommandBus');
     }
 
     /**

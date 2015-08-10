@@ -7,6 +7,12 @@
     <services>
         <service id="broadway.command_handling.simple_command_bus" class="Broadway\CommandHandling\SimpleCommandBus"/>
 
+        <!-- Provides BC compatibility with old exceptions -->
+        <service id="broadway.command_handling.handling_exception_aware_command_bus" class="Broadway\CommandHandling\HandlingExceptionAwareCommandBus"
+                public="false">
+            <argument type="service" id="broadway.command_handling.simple_command_bus" />
+        </service>
+
         <service id="broadway.command_handling.event_dispatching_command_bus" class="Broadway\CommandHandling\EventDispatchingCommandBus" public="false">
             <argument type="service" id="broadway.command_handling.simple_command_bus" />
             <argument type="service" id="broadway.event_dispatcher" />
